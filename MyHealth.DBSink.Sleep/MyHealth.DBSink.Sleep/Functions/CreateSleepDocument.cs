@@ -1,12 +1,12 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MyHealth.Common;
+using MyHealth.DBSink.Sleep.Helpers;
 using MyHealth.DBSink.Sleep.Services;
 using Newtonsoft.Json;
+using System;
+using System.Threading.Tasks;
 using mdl = MyHealth.Common.Models;
 
 namespace MyHealth.DBSink.Sleep.Functions
@@ -15,23 +15,23 @@ namespace MyHealth.DBSink.Sleep.Functions
     {
         private readonly ILogger<CreateSleepDocument> _logger;
         private readonly IServiceBusHelpers _serviceBusHelpers;
-        private readonly IConfiguration _configuration;
+        private readonly FunctionOptions _functionOptions;
         private readonly ISleepDbService _sleepDbService;
 
         public CreateSleepDocument(
             ILogger<CreateSleepDocument> logger,
             IServiceBusHelpers serviceBusHelpers,
-            IConfiguration configuration,
+            IOptions<FunctionOptions> options,
             ISleepDbService sleepDbService)
         {
             _logger = logger;
             _serviceBusHelpers = serviceBusHelpers;
-            _configuration = configuration;
+            _functionOptions = options.Value;
             _sleepDbService = sleepDbService;
         }
 
         [FunctionName(nameof(CreateSleepDocument))]
-        public async Task Run([ServiceBusTrigger("mytopic", "mysubscription", Connection = "")]string mySbMsg)
+        public async Task Run([ServiceBusTrigger("mytopic", "mysubscription", Connection = "FunctionOptions:ServiceBusConnectionString")] string mySbMsg)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace MyHealth.DBSink.Sleep.Functions
             catch (Exception ex)
             {
                 _logger.LogError($"Exception thrown in {nameof(CreateSleepDocument)}. Exception: {ex.Message}");
-                await _serviceBusHelpers.SendMessageToTopic(_configuration["ExceptionTopic"], ex);
+                await _serviceBusHelpers.SendMessageToTopic(_functionOptions.ExceptionTopicSetting, ex);
             }
         }
     }

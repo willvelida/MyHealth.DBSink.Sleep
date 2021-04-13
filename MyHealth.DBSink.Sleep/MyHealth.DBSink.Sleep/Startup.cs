@@ -4,10 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyHealth.Common;
 using MyHealth.DBSink.Sleep;
-using System;
-using System.Collections.Generic;
+using MyHealth.DBSink.Sleep.Helpers;
 using System.IO;
-using System.Text;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace MyHealth.DBSink.Sleep
@@ -24,16 +22,21 @@ namespace MyHealth.DBSink.Sleep
 
             builder.Services.AddSingleton<IConfiguration>(config);
 
-            builder.Services.AddSingleton(sp =>
+            builder.Services.AddOptions<FunctionOptions>().Configure<IConfiguration>((settings, configuration) =>
             {
-                IConfiguration configuration = sp.GetService<IConfiguration>();
-                return new CosmosClient(configuration["CosmosDBConnectionString"]);
+                configuration.GetSection("FunctionOptions").Bind(settings);
             });
 
             builder.Services.AddSingleton(sp =>
             {
                 IConfiguration configuration = sp.GetService<IConfiguration>();
-                return new ServiceBusHelpers(configuration["ServiceBusConnectionString"]);
+                return new CosmosClient(configuration.GetConnectionString("CosmosDBConnectionString"));
+            });
+
+            builder.Services.AddSingleton(sp =>
+            {
+                IConfiguration configuration = sp.GetService<IConfiguration>();
+                return new ServiceBusHelpers(configuration.GetConnectionString("ServiceBusConnectionString"));
             });
         }
     }
