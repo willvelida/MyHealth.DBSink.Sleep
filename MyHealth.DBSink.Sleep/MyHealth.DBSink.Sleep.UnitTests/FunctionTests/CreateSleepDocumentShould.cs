@@ -2,13 +2,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
+using MyHealth.Common.Models;
 using MyHealth.DBSink.Sleep.Functions;
-using MyHealth.DBSink.Sleep.Models;
 using MyHealth.DBSink.Sleep.Services;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -36,7 +34,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.FunctionTests
         public async Task AddSleepDocumentSuccessfully()
         {
             // Arrange
-            var testSleepDocument = new SleepDocument
+            var testSleepEnvelope = new SleepEnvelope
             {
                 Id = Guid.NewGuid().ToString(),
                 Sleep = new Common.Models.Sleep
@@ -46,7 +44,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.FunctionTests
                 DocumentType = "Test"
             };
 
-            var testSleepDocumentString = JsonConvert.SerializeObject(testSleepDocument);
+            var testSleepDocumentString = JsonConvert.SerializeObject(testSleepEnvelope);
 
             _mockSleepDbService.Setup(x => x.AddSleepDocument(It.IsAny<Common.Models.Sleep>())).Returns(Task.CompletedTask);
 
@@ -61,7 +59,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.FunctionTests
         public async Task CatchAndLogErrorWhenAddSleepDocumentThrowsException()
         {
             // Arrange
-            var testSleepDocument = new SleepDocument
+            var testSleepEnvelope = new SleepEnvelope
             {
                 Id = Guid.NewGuid().ToString(),
                 Sleep = new Common.Models.Sleep
@@ -71,7 +69,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.FunctionTests
                 DocumentType = "Test"
             };
 
-            var testSleepDocumentString = JsonConvert.SerializeObject(testSleepDocument);
+            var testSleepDocumentString = JsonConvert.SerializeObject(testSleepEnvelope);
 
             _mockSleepDbService.Setup(x => x.AddSleepDocument(It.IsAny<Common.Models.Sleep>())).ThrowsAsync(new Exception());
 

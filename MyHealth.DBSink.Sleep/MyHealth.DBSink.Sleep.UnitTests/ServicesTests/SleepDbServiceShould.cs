@@ -1,12 +1,9 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using MyHealth.DBSink.Sleep.Models;
+using MyHealth.Common.Models;
 using MyHealth.DBSink.Sleep.Services;
 using MyHealth.DBSink.Sleep.UnitTests.TestHelpers;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -49,7 +46,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.ServicesTests
 
             // Assert
             _mockContainer.Verify(x => x.CreateItemAsync(
-                It.IsAny<SleepDocument>(),
+                It.IsAny<SleepEnvelope>(),
                 It.IsAny<PartitionKey>(),
                 It.IsAny<ItemRequestOptions>(),
                 It.IsAny<CancellationToken>()), Times.Once);

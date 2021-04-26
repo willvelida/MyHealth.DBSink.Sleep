@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
-using MyHealth.DBSink.Sleep.Models;
+using MyHealth.Common.Models;
 using System;
 using System.Threading.Tasks;
 using mdl = MyHealth.Common.Models;
@@ -24,7 +24,7 @@ namespace MyHealth.DBSink.Sleep.Services
 
         public async Task AddSleepDocument(mdl.Sleep sleep)
         {
-            var sleepDocument = new SleepDocument
+            var sleepEnvelope = new SleepEnvelope
             {
                 Id = Guid.NewGuid().ToString(),
                 Sleep = sleep,
@@ -37,8 +37,8 @@ namespace MyHealth.DBSink.Sleep.Services
             };
 
             await _myHealthContainer.CreateItemAsync(
-                sleepDocument,
-                new PartitionKey(sleepDocument.DocumentType),
+                sleepEnvelope,
+                new PartitionKey(sleepEnvelope.DocumentType),
                 itemRequestOptions);
         }
     }
