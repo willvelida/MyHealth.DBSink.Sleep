@@ -1,6 +1,5 @@
 ﻿using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Options;
-using MyHealth.DBSink.Sleep.Helpers;
+using Microsoft.Extensions.Configuration;
 using MyHealth.DBSink.Sleep.Models;
 using System;
 using System.Threading.Tasks;
@@ -11,16 +10,16 @@ namespace MyHealth.DBSink.Sleep.Services
     public class SleepDbService : ISleepDbService
     {
         private readonly CosmosClient _cosmosClient;
-        private readonly FunctionOptions _functionOptions;
+        private readonly IConfiguration _configuration;
         private readonly Container _myHealthContainer;
 
         public SleepDbService(
             CosmosClient cosmosClient,
-            IOptions<FunctionOptions> options)
+            IConfiguration configuration)
         {
             _cosmosClient = cosmosClient;
-            _functionOptions = options.Value;
-            _myHealthContainer = _cosmosClient.GetContainer(_functionOptions.DatabaseNameSetting, _functionOptions.ContainerNameSetting);
+            _configuration = configuration;
+            _myHealthContainer = _cosmosClient.GetContainer(_configuration["DatabaseName"], _configuration["ContainerName"]);
         }
 
         public async Task AddSleepDocument(mdl.Sleep sleep)

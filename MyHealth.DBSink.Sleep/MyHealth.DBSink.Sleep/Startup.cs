@@ -2,9 +2,10 @@
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MyHealth.Common;
+using Microsoft.Extensions.Logging;
 using MyHealth.DBSink.Sleep;
-using MyHealth.DBSink.Sleep.Helpers;
+using MyHealth.DBSink.Sleep.Functions;
+using MyHealth.DBSink.Sleep.Services;
 using System.IO;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -12,6 +13,8 @@ namespace MyHealth.DBSink.Sleep
 {
     public class Startup : FunctionsStartup
     {
+        private static ILogger _logger;
+
         public override void Configure(IFunctionsHostBuilder builder)
         {
             var config = new ConfigurationBuilder()
@@ -21,23 +24,16 @@ namespace MyHealth.DBSink.Sleep
                 .Build();
 
             builder.Services.AddSingleton<IConfiguration>(config);
-
-            builder.Services.AddOptions<FunctionOptions>().Configure<IConfiguration>((settings, configuration) =>
-            {
-                configuration.GetSection("FunctionOptions").Bind(settings);
-            });
+            builder.Services.AddLogging();
+            _logger = new LoggerFactory().CreateLogger(nameof(CreateSleepDocument));
 
             builder.Services.AddSingleton(sp =>
             {
                 IConfiguration configuration = sp.GetService<IConfiguration>();
-                return new CosmosClient(configuration.GetConnectionString("CosmosDBConnectionString"));
+                return new CosmosClient(configuration["CosmosDBConnectionString"]);
             });
 
-            builder.Services.AddSingleton(sp =>
-            {
-                IConfiguration configuration = sp.GetService<IConfiguration>();
-                return new ServiceBusHelpers(configuration.GetConnectionString("ServiceBusConnectionString"));
-            });
+            builder.Services.AddScoped<ISleepDbService, SleepDbService>();
         }
     }
 }

@@ -1,8 +1,6 @@
 using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using MyHealth.Common;
-using MyHealth.DBSink.Sleep.Helpers;
 using MyHealth.DBSink.Sleep.Services;
 using Newtonsoft.Json;
 using System;
@@ -13,36 +11,33 @@ namespace MyHealth.DBSink.Sleep.Functions
 {
     public class CreateSleepDocument
     {
-        private readonly ILogger<CreateSleepDocument> _logger;
-        private readonly IServiceBusHelpers _serviceBusHelpers;
-        private readonly FunctionOptions _functionOptions;
+        private readonly IConfiguration _configuration;
         private readonly ISleepDbService _sleepDbService;
 
         public CreateSleepDocument(
-            ILogger<CreateSleepDocument> logger,
-            IServiceBusHelpers serviceBusHelpers,
-            IOptions<FunctionOptions> options,
+            IConfiguration configuration,
             ISleepDbService sleepDbService)
         {
-            _logger = logger;
-            _serviceBusHelpers = serviceBusHelpers;
-            _functionOptions = options.Value;
+            _configuration = configuration;
             _sleepDbService = sleepDbService;
         }
 
         [FunctionName(nameof(CreateSleepDocument))]
-        public async Task Run([ServiceBusTrigger("mytopic", "mysubscription", Connection = "FunctionOptions:ServiceBusConnectionString")] string mySbMsg)
+        public async Task Run([ServiceBusTrigger("myhealthsleeptopic", "myhealthsleepsubscription", Connection = "ServiceBusConnectionString")] string mySbMsg, ILogger logger)
         {
             try
             {
+                // Convert incoming message into Sleep Model
                 var sleep = JsonConvert.DeserializeObject<mdl.Sleep>(mySbMsg);
 
+                // Persist Sleep object to Cosmos DB
                 await _sleepDbService.AddSleepDocument(sleep);
+                logger.LogInformation($"Sleep Document with {sleep.StartTime} has been persisted");
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Exception thrown in {nameof(CreateSleepDocument)}. Exception: {ex.Message}");
-                await _serviceBusHelpers.SendMessageToTopic(_functionOptions.ExceptionTopicSetting, ex);
+                logger.LogError($"Exception thrown in {nameof(CreateSleepDocument)}. Exception: {ex.Message}");
+                throw ex;
             }
         }
     }
