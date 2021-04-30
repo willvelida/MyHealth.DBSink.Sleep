@@ -39,7 +39,8 @@ stages:
             inputs:
               command: 'test'
               projects: '**/*UnitTests/*.csproj'
-              arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+              arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
+              publishTestResults: true
 
           - script: |
               dotnet tool install -g dotnet-reportgenerator-globaltool
@@ -50,8 +51,8 @@ stages:
             displayName: 'Publish Code Coverage'
             inputs:
               codeCoverageTool: Cobertura
-              summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
-              reportDirectory: '$(Build.SourcesDirectory)/CodeCoverage'
+              summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+              reportDirectory: '$(Build.SourcesDirectory)/TestResults/Coverage/'
 
           - task: DotNetCoreCLI@2
             displayName: Publish Project
