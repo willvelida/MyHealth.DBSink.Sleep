@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
+using MyHealth.Common;
 using MyHealth.Common.Models;
 using MyHealth.DBSink.Sleep.Functions;
 using MyHealth.DBSink.Sleep.Services;
@@ -17,6 +18,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.FunctionTests
         private Mock<ILogger> _mockLogger;
         private Mock<IConfiguration> _mockConfiguration;
         private Mock<ISleepDbService> _mockSleepDbService;
+        private Mock<IServiceBusHelpers> _mockServiceBusHelpers;
 
         private CreateSleepDocument _func;
 
@@ -26,8 +28,12 @@ namespace MyHealth.DBSink.Sleep.UnitTests.FunctionTests
             _mockLogger = new Mock<ILogger>();
             _mockConfiguration.Setup(x => x["ServiceBusConnectionString"]).Returns("ServiceBusConnectionString");
             _mockSleepDbService = new Mock<ISleepDbService>();
+            _mockServiceBusHelpers = new Mock<IServiceBusHelpers>();
 
-            _func = new CreateSleepDocument(_mockConfiguration.Object, _mockSleepDbService.Object);
+            _func = new CreateSleepDocument(
+                _mockConfiguration.Object, 
+                _mockSleepDbService.Object,
+                _mockServiceBusHelpers.Object);
         }
 
         [Fact]
@@ -53,6 +59,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.FunctionTests
 
             // Assert
             _mockSleepDbService.Verify(x => x.AddSleepDocument(It.IsAny<Common.Models.Sleep>()), Times.Once);
+            _mockServiceBusHelpers.Verify(x => x.SendMessageToQueue(It.IsAny<string>(), It.IsAny<Exception>()), Times.Never);
         }
 
         [Fact]
@@ -79,6 +86,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.FunctionTests
             // Assert
             _mockSleepDbService.Verify(x => x.AddSleepDocument(It.IsAny<Common.Models.Sleep>()), Times.Never);
             await responseAction.Should().ThrowAsync<Exception>();
+            _mockServiceBusHelpers.Verify(x => x.SendMessageToQueue(It.IsAny<string>(), It.IsAny<Exception>()), Times.Once);
         }
     }
 }

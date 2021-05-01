@@ -1,9 +1,11 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using FluentAssertions;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using MyHealth.Common.Models;
 using MyHealth.DBSink.Sleep.Services;
 using MyHealth.DBSink.Sleep.UnitTests.TestHelpers;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -42,14 +44,39 @@ namespace MyHealth.DBSink.Sleep.UnitTests.ServicesTests
             _mockContainer.SetupCreateItemAsync<Common.Models.Sleep>();
 
             // Act
-            await _sut.AddSleepDocument(testSleepDocument);
+            Func<Task> serviceAction = async () => await _sut.AddSleepDocument(testSleepDocument);
 
             // Assert
+            await serviceAction.Should().NotThrowAsync<Exception>();
             _mockContainer.Verify(x => x.CreateItemAsync(
                 It.IsAny<SleepEnvelope>(),
                 It.IsAny<PartitionKey>(),
                 It.IsAny<ItemRequestOptions>(),
                 It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CatchExceptionWhenCreateItemAsyncThrowsException()
+        {
+            // Arrange
+            Common.Models.Sleep testSleepDocument = new Common.Models.Sleep
+            {
+
+            };
+
+            _mockContainer.Setup(x => x.CreateItemAsync(
+                It.IsAny<SleepEnvelope>(),
+                It.IsAny<PartitionKey>(),
+                It.IsAny<ItemRequestOptions>(),
+                It.IsAny<CancellationToken>())).ThrowsAsync(new Exception());
+
+            _mockContainer.SetupCreateItemAsync<Common.Models.Sleep>();
+
+            // Act
+            Func<Task> serviceAction = async () => await _sut.AddSleepDocument(testSleepDocument);
+
+            // Assert
+            await serviceAction.Should().ThrowAsync<Exception>();
         }
     }
 }

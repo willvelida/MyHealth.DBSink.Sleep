@@ -1,6 +1,7 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MyHealth.Common;
 using MyHealth.DBSink.Sleep.Services;
 using Newtonsoft.Json;
 using System;
@@ -13,13 +14,16 @@ namespace MyHealth.DBSink.Sleep.Functions
     {
         private readonly IConfiguration _configuration;
         private readonly ISleepDbService _sleepDbService;
+        private readonly IServiceBusHelpers _serviceBusHelpers;
 
         public CreateSleepDocument(
             IConfiguration configuration,
-            ISleepDbService sleepDbService)
+            ISleepDbService sleepDbService,
+            IServiceBusHelpers serviceBusHelpers)
         {
             _configuration = configuration;
             _sleepDbService = sleepDbService;
+            _serviceBusHelpers = serviceBusHelpers;
         }
 
         [FunctionName(nameof(CreateSleepDocument))]
@@ -37,6 +41,7 @@ namespace MyHealth.DBSink.Sleep.Functions
             catch (Exception ex)
             {
                 logger.LogError($"Exception thrown in {nameof(CreateSleepDocument)}. Exception: {ex.Message}");
+                await _serviceBusHelpers.SendMessageToQueue(_configuration["ExceptionQueue"], ex);
                 throw ex;
             }
         }

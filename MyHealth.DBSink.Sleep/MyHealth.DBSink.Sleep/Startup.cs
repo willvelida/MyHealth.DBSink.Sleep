@@ -3,6 +3,7 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MyHealth.Common;
 using MyHealth.DBSink.Sleep;
 using MyHealth.DBSink.Sleep.Functions;
 using MyHealth.DBSink.Sleep.Services;
@@ -31,6 +32,12 @@ namespace MyHealth.DBSink.Sleep
             {
                 IConfiguration configuration = sp.GetService<IConfiguration>();
                 return new CosmosClient(configuration["CosmosDBConnectionString"]);
+            });
+
+            builder.Services.AddSingleton<IServiceBusHelpers>(sp =>
+            {
+                IConfiguration configuration = sp.GetService<IConfiguration>();
+                return new ServiceBusHelpers(configuration["ServiceBusConnectionString"]);
             });
 
             builder.Services.AddScoped<ISleepDbService, SleepDbService>();

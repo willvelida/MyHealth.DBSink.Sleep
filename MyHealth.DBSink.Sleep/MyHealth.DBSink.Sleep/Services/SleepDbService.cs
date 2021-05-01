@@ -24,22 +24,29 @@ namespace MyHealth.DBSink.Sleep.Services
 
         public async Task AddSleepDocument(mdl.Sleep sleep)
         {
-            var sleepEnvelope = new SleepEnvelope
+            try
             {
-                Id = Guid.NewGuid().ToString(),
-                Sleep = sleep,
-                DocumentType = "Sleep"
-            };
+                var sleepEnvelope = new SleepEnvelope
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Sleep = sleep,
+                    DocumentType = "Sleep"
+                };
 
-            ItemRequestOptions itemRequestOptions = new ItemRequestOptions
+                ItemRequestOptions itemRequestOptions = new ItemRequestOptions
+                {
+                    EnableContentResponseOnWrite = false
+                };
+
+                await _myHealthContainer.CreateItemAsync(
+                    sleepEnvelope,
+                    new PartitionKey(sleepEnvelope.DocumentType),
+                    itemRequestOptions);
+            }
+            catch (Exception ex)
             {
-                EnableContentResponseOnWrite = false
-            };
-
-            await _myHealthContainer.CreateItemAsync(
-                sleepEnvelope,
-                new PartitionKey(sleepEnvelope.DocumentType),
-                itemRequestOptions);
+                throw ex;
+            }
         }
     }
 }
