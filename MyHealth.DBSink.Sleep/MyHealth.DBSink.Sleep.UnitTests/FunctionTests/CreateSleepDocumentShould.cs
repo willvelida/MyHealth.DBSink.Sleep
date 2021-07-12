@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using AutoFixture;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -31,7 +32,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.FunctionTests
             _mockServiceBusHelpers = new Mock<IServiceBusHelpers>();
 
             _func = new CreateSleepDocument(
-                _mockConfiguration.Object, 
+                _mockConfiguration.Object,
                 _mockSleepDbService.Object,
                 _mockServiceBusHelpers.Object);
         }
@@ -40,15 +41,8 @@ namespace MyHealth.DBSink.Sleep.UnitTests.FunctionTests
         public async Task AddSleepDocumentSuccessfully()
         {
             // Arrange
-            var testSleepEnvelope = new SleepEnvelope
-            {
-                Id = Guid.NewGuid().ToString(),
-                Sleep = new Common.Models.Sleep
-                {
-                    MinutesAsleep = 520
-                },
-                DocumentType = "Test"
-            };
+            var fixture = new Fixture();
+            var testSleepEnvelope = fixture.Create<SleepEnvelope>();
 
             var testSleepDocumentString = JsonConvert.SerializeObject(testSleepEnvelope);
 
@@ -66,15 +60,8 @@ namespace MyHealth.DBSink.Sleep.UnitTests.FunctionTests
         public async Task CatchAndLogErrorWhenAddSleepDocumentThrowsException()
         {
             // Arrange
-            var testSleepEnvelope = new SleepEnvelope
-            {
-                Id = Guid.NewGuid().ToString(),
-                Sleep = new Common.Models.Sleep
-                {
-                    MinutesAsleep = 520
-                },
-                DocumentType = "Test"
-            };
+            var fixture = new Fixture();
+            var testSleepEnvelope = fixture.Create<SleepEnvelope>();
 
             var testSleepDocumentString = JsonConvert.SerializeObject(testSleepEnvelope);
 

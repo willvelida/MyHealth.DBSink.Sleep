@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using AutoFixture;
+using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -36,10 +37,8 @@ namespace MyHealth.DBSink.Sleep.UnitTests.ServicesTests
         public async Task AddSleepDocumentWhenCreateItemAsyncIsCalled()
         {
             // Arrange
-            Common.Models.Sleep testSleepDocument = new Common.Models.Sleep
-            {
-
-            };
+            var fixture = new Fixture();
+            var testSleepDocument = fixture.Create<Common.Models.Sleep>();
 
             _mockContainer.SetupCreateItemAsync<Common.Models.Sleep>();
 
@@ -59,10 +58,8 @@ namespace MyHealth.DBSink.Sleep.UnitTests.ServicesTests
         public async Task CatchExceptionWhenCreateItemAsyncThrowsException()
         {
             // Arrange
-            Common.Models.Sleep testSleepDocument = new Common.Models.Sleep
-            {
-
-            };
+            var fixture = new Fixture();
+            var testSleepDocument = fixture.Create<Common.Models.Sleep>();
 
             _mockContainer.Setup(x => x.CreateItemAsync(
                 It.IsAny<SleepEnvelope>(),
