@@ -38,9 +38,9 @@ namespace MyHealth.DBSink.Sleep.UnitTests.ServicesTests
         {
             // Arrange
             var fixture = new Fixture();
-            var testSleepDocument = fixture.Create<Common.Models.Sleep>();
+            var testSleepDocument = fixture.Create<Common.Models.SleepEnvelope>();
 
-            _mockContainer.SetupCreateItemAsync<Common.Models.Sleep>();
+            _mockContainer.SetupCreateItemAsync<Common.Models.SleepEnvelope>();
 
             // Act
             Func<Task> serviceAction = async () => await _sut.AddSleepDocument(testSleepDocument);
@@ -59,7 +59,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.ServicesTests
         {
             // Arrange
             var fixture = new Fixture();
-            var testSleepDocument = fixture.Create<Common.Models.Sleep>();
+            var testSleepDocument = fixture.Create<Common.Models.SleepEnvelope>();
 
             _mockContainer.Setup(x => x.CreateItemAsync(
                 It.IsAny<SleepEnvelope>(),

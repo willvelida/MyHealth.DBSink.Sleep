@@ -5,6 +5,6 @@ namespace MyHealth.DBSink.Sleep.Services
 {
     public interface ISleepDbService
     {
-        Task AddSleepDocument(mdl.Sleep sleep);
+        Task AddSleepDocument(mdl.SleepEnvelope sleep);
     }
 }

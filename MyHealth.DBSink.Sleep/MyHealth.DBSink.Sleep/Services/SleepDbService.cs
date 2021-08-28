@@ -22,17 +22,10 @@ namespace MyHealth.DBSink.Sleep.Services
             _myHealthContainer = _cosmosClient.GetContainer(_configuration["DatabaseName"], _configuration["ContainerName"]);
         }
 
-        public async Task AddSleepDocument(mdl.Sleep sleep)
+        public async Task AddSleepDocument(mdl.SleepEnvelope sleepEnvelope)
         {
             try
             {
-                var sleepEnvelope = new SleepEnvelope
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Sleep = sleep,
-                    DocumentType = "Sleep"
-                };
-
                 ItemRequestOptions itemRequestOptions = new ItemRequestOptions
                 {
                     EnableContentResponseOnWrite = false

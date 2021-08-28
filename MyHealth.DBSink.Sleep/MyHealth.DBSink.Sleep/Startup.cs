@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using MyHealth.Common;
 using MyHealth.DBSink.Sleep;
 using MyHealth.DBSink.Sleep.Functions;
+using MyHealth.DBSink.Sleep.Mappers;
 using MyHealth.DBSink.Sleep.Services;
 using System.IO;
 
@@ -41,6 +42,7 @@ namespace MyHealth.DBSink.Sleep
             });
 
             builder.Services.AddScoped<ISleepDbService, SleepDbService>();
+            builder.Services.AddScoped<ISleepEnvelopeMapper, SleepEnvelopeMapper>();
         }
     }
 }
