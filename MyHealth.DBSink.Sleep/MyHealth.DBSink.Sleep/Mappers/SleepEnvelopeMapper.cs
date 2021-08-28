@@ -1,8 +1,5 @@
 ﻿using MyHealth.Common.Models;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
 using mdl = MyHealth.Common.Models;
 
 namespace MyHealth.DBSink.Sleep.Mappers
@@ -19,7 +16,7 @@ namespace MyHealth.DBSink.Sleep.Mappers
                 Id = Guid.NewGuid().ToString(),
                 Sleep = sleep,
                 DocumentType = "Sleep",
-                Date = DateTime.ParseExact(sleep.SleepDate, "yyyy-MM-dd", CultureInfo.InvariantCulture)
+                Date = sleep.SleepDate
             };
 
             return sleepEnvelope;

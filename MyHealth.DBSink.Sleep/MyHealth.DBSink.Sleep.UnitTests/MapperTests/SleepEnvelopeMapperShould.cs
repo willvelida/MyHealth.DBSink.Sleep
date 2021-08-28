@@ -1,11 +1,8 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Moq;
 using MyHealth.DBSink.Sleep.Mappers;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using mdl = MyHealth.Common.Models;
 
@@ -42,7 +39,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.MapperTests
                 expectedSleepEnvelope.Should().BeOfType<mdl.SleepEnvelope>();
                 expectedSleepEnvelope.Sleep.Should().Be(testSleep);
                 expectedSleepEnvelope.DocumentType.Should().Be("Sleep");
-                expectedSleepEnvelope.Date.Should().Be(DateTime.Parse(testSleep.SleepDate));
+                expectedSleepEnvelope.Date.Should().Be(testSleep.SleepDate);
             }
         }
     }

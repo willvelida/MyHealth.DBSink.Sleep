@@ -87,11 +87,11 @@ namespace MyHealth.DBSink.Sleep.UnitTests.FunctionTests
         {
             // Arrange
             var fixture = new Fixture();
-            var testSleep = fixture.Create<mdl.Sleep>();          
+            var testSleep = fixture.Create<mdl.Sleep>();
             var testSleepEnvelope = fixture.Create<SleepEnvelope>();
             testSleep.SleepDate = "2021-08-28";
             var testSleepDocumentString = JsonConvert.SerializeObject(testSleep);
-          
+
             _mockSleepEnvelopeMapper.Setup(x => x.MapSleepToSleepEnvelope(It.IsAny<mdl.Sleep>())).Returns(testSleepEnvelope);
             _mockSleepDbService.Setup(x => x.AddSleepDocument(It.IsAny<Common.Models.SleepEnvelope>())).ThrowsAsync(new Exception());
 
