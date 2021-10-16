@@ -2,8 +2,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MyHealth.Common;
-using MyHealth.DBSink.Sleep.Mappers;
-using MyHealth.DBSink.Sleep.Services;
+using MyHealth.DBSink.Sleep.Services.Interfaces;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
@@ -14,19 +13,16 @@ namespace MyHealth.DBSink.Sleep.Functions
     public class CreateSleepDocument
     {
         private readonly IConfiguration _configuration;
-        private readonly ISleepDbService _sleepDbService;
-        private readonly ISleepEnvelopeMapper _sleepEnvelopeMapper;
+        private readonly ISleepService _sleepService;
         private readonly IServiceBusHelpers _serviceBusHelpers;
 
         public CreateSleepDocument(
             IConfiguration configuration,
-            ISleepDbService sleepDbService,
-            ISleepEnvelopeMapper sleepEnvelopeMapper,
+            ISleepService sleepService,
             IServiceBusHelpers serviceBusHelpers)
         {
             _configuration = configuration;
-            _sleepDbService = sleepDbService;
-            _sleepEnvelopeMapper = sleepEnvelopeMapper;
+            _sleepService = sleepService;
             _serviceBusHelpers = serviceBusHelpers;
         }
 
@@ -38,10 +34,10 @@ namespace MyHealth.DBSink.Sleep.Functions
                 // Convert incoming message into Sleep Model
                 var sleep = JsonConvert.DeserializeObject<mdl.Sleep>(mySbMsg);
 
-                var sleepEnvelope = _sleepEnvelopeMapper.MapSleepToSleepEnvelope(sleep);
+                var sleepEnvelope = _sleepService.MapSleepToSleepEnvelope(sleep);
 
                 // Persist Sleep object to Cosmos DB
-                await _sleepDbService.AddSleepDocument(sleepEnvelope);
+                await _sleepService.AddSleepDocument(sleepEnvelope);
                 logger.LogInformation($"Sleep Document with {sleep.StartTime} has been persisted");
             }
             catch (Exception ex)

@@ -1,18 +1,19 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
+using MyHealth.Common.Models;
+using MyHealth.DBSink.Sleep.Repository.Interfaces;
 using System;
 using System.Threading.Tasks;
-using mdl = MyHealth.Common.Models;
 
-namespace MyHealth.DBSink.Sleep.Services
+namespace MyHealth.DBSink.Sleep.Repository
 {
-    public class SleepDbService : ISleepDbService
+    public class SleepRepository : ISleepRepository
     {
         private readonly CosmosClient _cosmosClient;
         private readonly IConfiguration _configuration;
         private readonly Container _myHealthContainer;
 
-        public SleepDbService(
+        public SleepRepository(
             CosmosClient cosmosClient,
             IConfiguration configuration)
         {
@@ -21,7 +22,7 @@ namespace MyHealth.DBSink.Sleep.Services
             _myHealthContainer = _cosmosClient.GetContainer(_configuration["DatabaseName"], _configuration["ContainerName"]);
         }
 
-        public async Task AddSleepDocument(mdl.SleepEnvelope sleepEnvelope)
+        public async Task CreateSleep(SleepEnvelope sleepEnvelope)
         {
             try
             {

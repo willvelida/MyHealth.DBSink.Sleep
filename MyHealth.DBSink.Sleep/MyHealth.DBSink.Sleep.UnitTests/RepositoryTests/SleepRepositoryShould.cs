@@ -4,24 +4,24 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using MyHealth.Common.Models;
-using MyHealth.DBSink.Sleep.Services;
+using MyHealth.DBSink.Sleep.Repository;
 using MyHealth.DBSink.Sleep.UnitTests.TestHelpers;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace MyHealth.DBSink.Sleep.UnitTests.ServicesTests
+namespace MyHealth.DBSink.Sleep.UnitTests.RepositoryTests
 {
-    public class SleepDbServiceShould
+    public class SleepRepositoryShould
     {
         private Mock<CosmosClient> _mockCosmosClient;
         private Mock<Container> _mockContainer;
         private Mock<IConfiguration> _mockConfiguration;
 
-        private SleepDbService _sut;
+        private SleepRepository _sut;
 
-        public SleepDbServiceShould()
+        public SleepRepositoryShould()
         {
             _mockCosmosClient = new Mock<CosmosClient>();
             _mockContainer = new Mock<Container>();
@@ -30,7 +30,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.ServicesTests
             _mockConfiguration.Setup(x => x["DatabaseName"]).Returns("db");
             _mockConfiguration.Setup(x => x["ContainerName"]).Returns("col");
 
-            _sut = new SleepDbService(_mockCosmosClient.Object, _mockConfiguration.Object);
+            _sut = new SleepRepository(_mockCosmosClient.Object, _mockConfiguration.Object);
         }
 
         [Fact]
@@ -38,12 +38,12 @@ namespace MyHealth.DBSink.Sleep.UnitTests.ServicesTests
         {
             // Arrange
             var fixture = new Fixture();
-            var testSleepDocument = fixture.Create<Common.Models.SleepEnvelope>();
+            var testSleepDocument = fixture.Create<SleepEnvelope>();
 
-            _mockContainer.SetupCreateItemAsync<Common.Models.SleepEnvelope>();
+            _mockContainer.SetupCreateItemAsync<SleepEnvelope>();
 
             // Act
-            Func<Task> serviceAction = async () => await _sut.AddSleepDocument(testSleepDocument);
+            Func<Task> serviceAction = async () => await _sut.CreateSleep(testSleepDocument);
 
             // Assert
             await serviceAction.Should().NotThrowAsync<Exception>();
@@ -59,7 +59,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.ServicesTests
         {
             // Arrange
             var fixture = new Fixture();
-            var testSleepDocument = fixture.Create<Common.Models.SleepEnvelope>();
+            var testSleepDocument = fixture.Create<SleepEnvelope>();
 
             _mockContainer.Setup(x => x.CreateItemAsync(
                 It.IsAny<SleepEnvelope>(),
@@ -70,7 +70,7 @@ namespace MyHealth.DBSink.Sleep.UnitTests.ServicesTests
             _mockContainer.SetupCreateItemAsync<Common.Models.Sleep>();
 
             // Act
-            Func<Task> serviceAction = async () => await _sut.AddSleepDocument(testSleepDocument);
+            Func<Task> serviceAction = async () => await _sut.CreateSleep(testSleepDocument);
 
             // Assert
             await serviceAction.Should().ThrowAsync<Exception>();
