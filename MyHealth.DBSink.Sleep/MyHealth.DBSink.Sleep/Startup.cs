@@ -11,11 +11,13 @@ using MyHealth.DBSink.Sleep.Repository.Interfaces;
 using MyHealth.DBSink.Sleep.Services;
 using MyHealth.DBSink.Sleep.Services.Interfaces;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace MyHealth.DBSink.Sleep
 {
+    [ExcludeFromCodeCoverage]
     public class Startup : FunctionsStartup
     {
         private static ILogger _logger;
@@ -49,7 +51,7 @@ namespace MyHealth.DBSink.Sleep
                 return new ServiceBusHelpers(configuration["ServiceBusConnectionString"]);
             });
             builder.Services.AddTransient<ISleepRepository, SleepRepository>();
-            builder.Services.AddScoped<ISleepService, SleepService>();
+            builder.Services.AddTransient<ISleepService, SleepService>();
         }
     }
 }
